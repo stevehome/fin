@@ -2,6 +2,7 @@
 .claude/
 .beads/
 .logs/
+CLAUDE.md
 
 # Dependencies
 node_modules/
