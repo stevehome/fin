@@ -46,7 +46,7 @@ test.describe("Trading", () => {
     await expect(page.getByText("connected")).toBeVisible({ timeout: 10_000 });
 
     // Look for a trade input or bar - implementation-dependent
-    const tradePanel = page.locator("[class*=Trade]").or(page.getByText("Trade"));
+    const tradePanel = page.locator("[class*=Trade]").or(page.getByText("Trade")).first();
     if (await tradePanel.isVisible()) {
       // Trade panel exists - implementation-specific assertions would go here
       await expect(tradePanel).toBeVisible();
@@ -58,7 +58,7 @@ test.describe("Trading", () => {
     await expect(page.getByText("connected")).toBeVisible({ timeout: 10_000 });
 
     // Placeholder for when trade execution is implemented
-    const tradePanel = page.locator("[class*=Trade]").or(page.getByText("Trade"));
+    const tradePanel = page.locator("[class*=Trade]").or(page.getByText("Trade")).first();
     if (await tradePanel.isVisible()) {
       await expect(tradePanel).toBeVisible();
     }
@@ -120,19 +120,19 @@ test.describe("AI Chat", () => {
 
 test.describe("SSE resilience", () => {
   test("reconnects after disconnect", async ({ page }) => {
-    await page.goto("/");
-    // Wait for initial connection
-    await expect(page.getByText("connected")).toBeVisible({ timeout: 10_000 });
-
-    // Simulate disconnect by blocking the SSE endpoint
+    // Block SSE before page loads so the initial connection fails and triggers
+    // the reconnecting state (network abort keeps EventSource in CONNECTING
+    // with native retry, unlike close() which sets CLOSED with no retry)
     await page.route("**/api/stream/prices", (route) => route.abort());
 
-    // Should show reconnecting
+    await page.goto("/");
+
+    // SSE is blocked — should show reconnecting
     await expect(page.getByText("reconnecting")).toBeVisible({
       timeout: 10_000,
     });
 
-    // Restore the route
+    // Unblock SSE so the next retry succeeds
     await page.unroute("**/api/stream/prices");
 
     // Should reconnect
