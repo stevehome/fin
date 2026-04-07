@@ -14,10 +14,15 @@ from app.main import app
 async def client(tmp_path):
     """Async test client with a fresh per-test SQLite DB."""
     import app.database as database
+    from app.market.cache import price_cache
 
     db_file = str(tmp_path / "test.db")
     database.DB_PATH = db_file
     await database.init_db()
+
+    # Seed live prices so _execute_trade can look up prices
+    price_cache.update("AAPL", 150.0)
+    price_cache.update("TSLA", 150.0)
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as c:
