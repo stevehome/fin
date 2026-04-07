@@ -8,3 +8,10 @@ afterEach(() => {
 
 // jsdom doesn't implement scrollTo
 Element.prototype.scrollTo = () => {};
+
+// jsdom doesn't implement ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
