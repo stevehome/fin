@@ -12,8 +12,7 @@ __pycache__/
 .env
 
 # Database
-db/
-**/db/finally.db
+db/finally.db
 
 # Next.js
 .next/
