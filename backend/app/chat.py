@@ -333,7 +333,7 @@ async def _execute_watchlist_change(db, ticker: str, action: str) -> str | None:
 async def _call_llm(messages: list[dict]) -> ChatResponse:
     """Call LLM via LiteLLM -> OpenRouter and parse structured response."""
     response = await acompletion(
-        model="openrouter/openai/gpt-oss-120b",
+        model="openrouter/cerebras/llama-3.3-70b",
         messages=messages,
         extra_body={
             "response_format": {"type": "json_object"},
