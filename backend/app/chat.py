@@ -331,14 +331,16 @@ async def _execute_watchlist_change(db, ticker: str, action: str) -> str | None:
 
 
 async def _call_llm(messages: list[dict]) -> ChatResponse:
-    """Call LLM via LiteLLM -> OpenRouter and parse structured response."""
+    """Call OpenRouter directly as an OpenAI-compatible endpoint."""
     response = await acompletion(
-        model="openrouter/meta-llama/llama-3.3-70b-instruct",
+        model="meta-llama/llama-3.3-70b-instruct",
         messages=messages,
+        api_base="https://openrouter.ai/api/v1",
+        api_key=os.environ.get("OPENROUTER_API_KEY"),
     )
 
     content = response.choices[0].message.content
-    # Extract JSON from response — model may wrap it in markdown fences
+    # Extract JSON — model may wrap it in markdown fences
     if "```" in content:
         import re
         match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", content, re.DOTALL)
