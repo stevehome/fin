@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from litellm import acompletion
+import httpx
 
 from app.database import get_db
 from app.market.cache import price_cache
@@ -331,15 +331,25 @@ async def _execute_watchlist_change(db, ticker: str, action: str) -> str | None:
 
 
 async def _call_llm(messages: list[dict]) -> ChatResponse:
-    """Call OpenRouter directly as an OpenAI-compatible endpoint."""
-    response = await acompletion(
-        model="openai/meta-llama/llama-3.3-70b-instruct",
-        messages=messages,
-        api_base="https://openrouter.ai/api/v1",
-        api_key=os.environ.get("OPENROUTER_API_KEY"),
-    )
+    """Call OpenRouter directly via httpx."""
+    api_key = os.environ.get("OPENROUTER_API_KEY", "")
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        resp = await client.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "http://localhost:8000",
+            },
+            json={
+                "model": "meta-llama/llama-3.3-70b-instruct",
+                "messages": messages,
+            },
+        )
+        resp.raise_for_status()
+        data = resp.json()
 
-    content = response.choices[0].message.content
+    content = data["choices"][0]["message"]["content"]
     # Extract JSON — model may wrap it in markdown fences
     if "```" in content:
         import re
