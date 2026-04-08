@@ -336,7 +336,6 @@ async def _call_llm(messages: list[dict]) -> ChatResponse:
         model="openrouter/meta-llama/llama-3.3-70b-instruct",
         messages=messages,
         extra_body={
-            "provider": {"order": ["Cerebras"], "allow_fallbacks": True},
             "response_format": {"type": "json_object"},
         },
     )
