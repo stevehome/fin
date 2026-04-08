@@ -342,7 +342,7 @@ async def _call_llm(messages: list[dict]) -> ChatResponse:
                 "HTTP-Referer": "http://localhost:8000",
             },
             json={
-                "model": "meta-llama/llama-3.3-70b-instruct",
+                "model": "google/gemini-3.1-flash-lite-preview",
                 "messages": messages,
             },
         )
