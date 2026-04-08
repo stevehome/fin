@@ -335,13 +335,15 @@ async def _call_llm(messages: list[dict]) -> ChatResponse:
     response = await acompletion(
         model="openrouter/meta-llama/llama-3.3-70b-instruct",
         messages=messages,
-        extra_body={
-            "response_format": {"type": "json_object"},
-        },
     )
 
     content = response.choices[0].message.content
-    parsed = json.loads(content)
+    # Extract JSON from response — model may wrap it in markdown fences
+    if "```" in content:
+        import re
+        match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", content, re.DOTALL)
+        content = match.group(1) if match else content
+    parsed = json.loads(content.strip())
     return ChatResponse(**parsed)
 
 
