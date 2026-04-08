@@ -333,7 +333,7 @@ async def _execute_watchlist_change(db, ticker: str, action: str) -> str | None:
 async def _call_llm(messages: list[dict]) -> ChatResponse:
     """Call OpenRouter directly as an OpenAI-compatible endpoint."""
     response = await acompletion(
-        model="meta-llama/llama-3.3-70b-instruct",
+        model="openai/meta-llama/llama-3.3-70b-instruct",
         messages=messages,
         api_base="https://openrouter.ai/api/v1",
         api_key=os.environ.get("OPENROUTER_API_KEY"),
