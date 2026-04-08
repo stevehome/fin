@@ -342,7 +342,7 @@ async def _call_llm(messages: list[dict]) -> ChatResponse:
                 "HTTP-Referer": "http://localhost:8000",
             },
             json={
-                "model": "google/gemini-3.1-flash-lite-preview",
+                "model": "openai/gpt-4o-mini",
                 "messages": messages,
             },
         )
